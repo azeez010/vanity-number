@@ -1,11 +1,11 @@
 export const saveVanityNumbers = async (number, vanityList, dynamoClient) => {
     const params = {
-        TableName: process.env.VANITY_NUMBERS,
+        TableName: process.env.TABLE,
         Item: {
-            phone_number: number,
+            phoneNumber: number,
             vanity_numbers: vanityList,
         },
-        ConditionExpression: 'attribute_not_exists(phone_number)', // do not overwrite existing entries, but shouldn't trigger since checkNumber() handles this
+        ConditionExpression: 'attribute_not_exists(phoneNumber)', // do not overwrite existing entries, but shouldn't trigger since checkNumber() handles this
         ReturnConsumedCapacity: 'TOTAL',
     };
 

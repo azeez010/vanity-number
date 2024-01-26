@@ -1,40 +1,36 @@
 import {ddbDocClient} from "./getDynamoDocClient.mjs"
-import { GetCommand } from '@aws-sdk/lib-dynamodb';
+import { ScanCommand, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 
 
 export const getLastFiveVanityNumbers = async (number) => {
     const params = {
-        TableName: process.env.VANITY_NUMBERS,
-        Key: {
-            phone_number: number,
-        },
+        TableName: process.env.TABLE,
+        ScanIndexForward: false,
+        Limit: 5
     };
 
-    const result = await ddbDocClient.send(new GetCommand(params))
-    // await dynamoClient.get(params).promise();
+    const result = await ddbDocClient.send(new ScanCommand(params))
 
     try {
-        console.log('Found vanity numbers in db: ' + result.Item['vanity_numbers']);
-        return result.Item['vanity_numbers'];
+        console.log('Found vanity numbers in db: ' + result.Items);
+        return result.Items;
     } catch (err) {
-        return null; //returns null if no vanity_numbers attribute exists
+        return null;
     }
 };
 
 export const getVanityNumbers = async (number) => {
     const params = {
-        TableName: process.env.VANITY_NUMBERS,
+        TableName: process.env.TABLE,
         Key: {
-            phone_number: number,
+            phoneNumber: number,
         },
     };
 
     const result = await ddbDocClient.send(new GetCommand(params))
-        // await dynamoClient.get(params).promise();
-
     try {
-        console.log('Found vanity numbers in db: ' + result.Item['vanity_numbers']);
-        return result.Item['vanity_numbers'];
+        console.log('Found vanity numbers in db: ' + result.Item);
+        return result.Item;
     } catch (err) {
         return null; //returns null if no vanity_numbers attribute exists
     }

@@ -92,8 +92,8 @@ Test a single function by invoking it directly with a test event. An event is a 
 Run functions locally and invoke them with the `sam local invoke` command.
 
 ```bash
-my-application$ sam local invoke putItemFunction --event events/event-post-item.json
-my-application$ sam local invoke getAllItemsFunction --event events/vanity-number-conversion-handler.json
+my-application$ sam local invoke getVanityNumberFunction --event events/get-vanity-number.json
+my-application$ sam local invoke vanityNumberConversionFunction --event events/vanity-number-conversion-handler.json
 ```
 
 The AWS SAM CLI can also emulate your application's API. Use the `sam local start-api` command to run the API locally on port 3000.
@@ -123,7 +123,7 @@ docker run --rm -p 8000:8000 -v /tmp:/data amazon/dynamodb-local
 ```
 2. Create the DynamoDB table (sample command below): 
 ```
-aws dynamodb create-table --table-name SampleTable --attribute-definitions AttributeName=id,AttributeType=S --key-schema AttributeName=id,KeyType=HASH --billing-mode PAY_PER_REQUEST --endpoint-url http://127.0.0.1:8000
+aws dynamodb create-table --table-name VanityNumberTable --attribute-definitions AttributeName=phoneNumber,AttributeType=S AttributeName=timestamp,AttributeType=N --key-schema AttributeName=phoneNumber,KeyType=HASH AttributeName=timestamp,KeyType=RANGE --billing-mode PAY_PER_REQUEST --endpoint-url http://127.0.0.1:8000
 ```
 3. Retrieve the ip address of your docker container running dynamodb local:
 ```
@@ -132,13 +132,13 @@ docker inspect <container_name_or_id> -f  '{{range .NetworkSettings.Networks}}{{
 4. Update env.json with the IP of your docker container for the endpoint override - see here for example:
 ```
 {
-    "getByIdFunction": {
+    "vanityNumberConversionFunction": {
         "ENDPOINT_OVERRIDE": "http://172.17.0.2:8000",
-        "SAMPLE_TABLE": "SampleTable"
+        "TABLE": "VanityNumberTable"
     },
-    "putItemFunction": {
+    "getVanityNumberFunction": {
         "ENDPOINT_OVERRIDE": "http://172.17.0.2:8000",
-        "SAMPLE_TABLE": "SampleTable"
+        "TABLE": "VanityNumberTable"
     }
 }
 ```
@@ -148,14 +148,15 @@ sam local start-api --env-vars env.json --host 0.0.0.0 --debug
 ```
 6. For testing - you can put an item into dynamodb local
 ```
-aws dynamodb put-item \
-    --table-name SampleTable \
-    --item '{"id": {"S": "A1234"}, "name": {"S": "randeepx"}}' \
+ aws dynamodb put-item \
+    --table-name VanityNumberTable \
+    --item '{"phonePumber": {"S": "13234"}, "timestamp": {"N": "1"}, "VanityNumbers": {"L": [ {"S": "123456UU"}, {"S": "123456UX"}, {"S": "1234561U"} ]}' \ 
     --endpoint-url http://127.0.0.1:8000
+
 ```
 7. How to scan your table for items
 ```
-aws dynamodb scan --table-name SampleTable --endpoint-url http://127.0.0.1:8000
+aws dynamodb scan --table-name VanityNumberTable --endpoint-url http://127.0.0.1:8000
 ```
 8. To run frontend application locally:
 Go to your `frontend` code directory
@@ -185,7 +186,7 @@ Update `template.yaml` to add a dead-letter queue to your application. In the **
 Resources:
   MyQueue:
     Type: AWS::SQS::Queue
-  getAllItemsFunction:
+  vanityNumberConversionFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: src/handlers/get-all-items.getAllItemsHandler
@@ -215,7 +216,7 @@ To simplify troubleshooting, the AWS SAM CLI has a command called `sam logs`. `s
 **NOTE:** This command works for all Lambda functions, not just the ones you deploy using AWS SAM.
 
 ```bash
-my-application$ sam logs -n putItemFunction --stack-name sam-app --tail
+my-application$ sam logs -n getVanityNumberFunction --stack-name sam-app --tail
 ```
 
 **NOTE:** This uses the logical name of the function within the stack. This is the correct name to use when searching logs inside an AWS Lambda function within a CloudFormation stack, even if the deployed function name varies due to CloudFormation's unique resource name generation.

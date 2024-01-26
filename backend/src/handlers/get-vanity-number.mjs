@@ -11,8 +11,7 @@ export const getVanityNumberHandler = async (event) => {
   console.info('received:', event);
  
   // Get id from pathParameters from APIGateway because of `/{id}` at template.yaml
-  const phoneNumber = event.pathParameters.phone_number;
-  let lastFiveCallersVanityNumber = await getLastFiveVanityNumbers(phoneNumber);
+  let lastFiveCallersVanityNumber = await getLastFiveVanityNumbers();
  
   const response = {
     statusCode: 200,

@@ -24,7 +24,7 @@ describe('Test getVanityNumberHandler', () => {
         const event = { 
             httpMethod: 'GET', 
             pathParameters: { 
-                phone_number: 'id1'
+                phoneNumber: 'id1'
             } 
         };
  

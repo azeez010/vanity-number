@@ -1,31 +1,14 @@
 <template>
-  <div>
-      <div id="logo">
-        <img :src="'./logo.png'" />
-      </div>
-  </div>
-  <h2>Hi, I Am SAM</h2>
-  <hr />  
-  <h3>Create User</h3>
-  <CreateItem class="form-section"/>
-  <hr />  
-  <h3>Get User By ID</h3>
-  <GetItemById class="form-section"/>
-  <hr />    
-  <h3>Get All Users</h3>
-  <GetItems class="form-section"/>
+  <GetLastFiveVanityNumbersCaller />
 </template>
 
 <script>
-import CreateItem from './components/CreateItem'
-import GetItems from './components/GetItems'
-import GetItemById from './components/GetItemById'
+import GetLastFiveVanityNumbersCaller from './components/GetLastFiveVanityNumbersCaller.vue'
+
 export default {
   name: 'App',
   components: {
-    GetItems,
-    CreateItem,
-    GetItemById,
+    GetLastFiveVanityNumbersCaller,
   },
 }
 </script>

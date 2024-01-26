@@ -17,7 +17,7 @@ Resources:
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
 
-  # This is an API gateway associated with the getByIdFunction and putItemFunctions
+  # This is an API gateway associated with the vanityNumberConversionFunction and putItemFunctions
   ApiGatewayApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -28,7 +28,7 @@ Resources:
         AllowOrigin: "'*'" #DO NOT USE THIS VALUE IN PRODUCTION - https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-cors.html
 
   # This is a Lambda function config associated with the source code: get-by-id.js
-  getAllItemsFunction:
+  getVanityNumberFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: backend/
@@ -46,7 +46,7 @@ Resources:
       Environment:
         Variables:
           # Make table name accessible as environment variable from function code during execution
-          SAMPLE_TABLE: !Ref VanityNumberTable
+          TABLE: !Ref VanityNumberTable
           # Make DynamoDB endpoint accessible as environment variable from function code during execution
           ENDPOINT_OVERRIDE: ""
       Events:
@@ -79,7 +79,7 @@ Resources:
       Environment:
         Variables:
           # Make table name accessible as environment variable from function code during execution
-          SAMPLE_TABLE: !Ref VanityNumberTable
+          TABLE: !Ref VanityNumberTable
           # Make DynamoDB endpoint accessible as environment variable from function code during execution
           ENDPOINT_OVERRIDE: ""
 
@@ -91,11 +91,19 @@ Resources:
 
   # DynamoDB table to store item: {id: &lt;ID&gt;, name: &lt;NAME&gt;}
   VanityNumberTable:
-    Type: AWS::Serverless::SimpleTable
+    Type:  AWS::DynamoDB::Table
     Properties:
-      PrimaryKey:
-        Name: phone_number
-        Type: String
+      AttributeDefinitions:
+        - AttributeName: phoneNumber
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: N
+      KeySchema:
+        - AttributeName: phoneNumber
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+
 
   # S3 Bucket to host single page app website
   WebSiteBucket:
