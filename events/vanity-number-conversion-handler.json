@@ -1,3 +1,10 @@
 {
-    "httpMethod": "GET"
+    "httpMethod": "GET",
+    "Details": {
+        "ContactData": {
+            "CustomerEndpoint": {
+                "Address": "12334523452"
+            }
+        }
+    }
 }

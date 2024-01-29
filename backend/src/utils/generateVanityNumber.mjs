@@ -1,14 +1,14 @@
 import { readFileSync } from "fs";
-import {  wordsListPath } from "word-list";
-import { Sentiment } from "sentiment";
-
 import { getVanityNumbers } from "../dynamohelpers/getVanityNumbers.mjs"
+import {saveVanityNumbers} from "../dynamohelpers/saveVanityNumber.mjs";
+import wordsListPath from "word-list";
+import Sentiment from "sentiment";
 
 // Use the 'word-list' library for a simple English word list
 const englishWords = readFileSync(wordsListPath, 'utf8').split('\n');
 
 export async function generateMeaningfulVanityNumbers(phoneNumber, dynamoClient, rangeStart = 3, rangeEnd = 6, sentimentCheck=false) {
-    let vanityList = await getVanityNumbers(phoneNumber);
+    let vanityList =  await getVanityNumbers(phoneNumber);
 
     if (vanityList) {
         //if the vanityList is already in the database, return it
@@ -28,7 +28,16 @@ export async function generateMeaningfulVanityNumbers(phoneNumber, dynamoClient,
         '9': 'WXYZ'
     };
 
-    const sentiment = new Sentiment();
+    const sentiment= new Sentiment();
+
+    function generateVanityNumberString(str, fixedValue) {
+        let n = fixedValue.length;
+
+        const prefix = str.slice(0, -n);  // Get the part of the string excluding the last n characters
+        const replacedString = prefix + fixedValue;  // Concatenate the prefix with the fixed value
+
+        return replacedString;
+    }
 
     function backtrack(current, remainingDigits) {
         if (!remainingDigits.length) {
@@ -49,27 +58,33 @@ export async function generateMeaningfulVanityNumbers(phoneNumber, dynamoClient,
         return [];
     }
 
-    const meaningfulVanityNumbers = [];
+    let meaningfulVanityNumbers = [];
 
     for (let sliceLength = rangeStart; sliceLength <= rangeEnd; sliceLength++) {
         const lastDigits = phoneNumber.slice(-sliceLength);
         const vanityNumberCandidates = new Set(backtrack('', lastDigits));
 
         // Filter candidates to select meaningful words
-        for (const candidate of Array.from(vanityNumberCandidates)) {
+        for (let candidate of Array.from(vanityNumberCandidates)) {
             if (englishWords.includes(candidate.toLowerCase())) {
                 if(sentimentCheck)
                 {
                     let score = sentiment.analyze(candidate)
                     if(score >= 1){
-                        meaningfulVanityNumbers.push(candidate);
+                        meaningfulVanityNumbers.push(generateVanityNumberString(phoneNumber, candidate));
                     }
                 } else {
-                    meaningfulVanityNumbers.push(candidate)
+                    meaningfulVanityNumbers.push(generateVanityNumberString(phoneNumber, candidate));
                 }
+            } else if(meaningfulVanityNumbers.length <= 5) {
+                meaningfulVanityNumbers.push(generateVanityNumberString(phoneNumber, candidate));
             }
+
         }
     }
 
-    return meaningfulVanityNumbers;
+    meaningfulVanityNumbers = meaningfulVanityNumbers.slice(-5)
+    await saveVanityNumbers(phoneNumber, meaningfulVanityNumbers, dynamoClient);
+
+    return meaningfulVanityNumbers
 }

@@ -1,13 +1,15 @@
+import { PutCommand } from '@aws-sdk/lib-dynamodb';
+
 export const saveVanityNumbers = async (number, vanityList, dynamoClient) => {
-    const params = {
+    let command = new PutCommand({
         TableName: process.env.TABLE,
         Item: {
             phoneNumber: number,
-            vanity_numbers: vanityList,
+            vanityNumbers: vanityList,
+            timestamp: Math.floor(new Date().getTime())
         },
         ConditionExpression: 'attribute_not_exists(phoneNumber)', // do not overwrite existing entries, but shouldn't trigger since checkNumber() handles this
-        ReturnConsumedCapacity: 'TOTAL',
-    };
+    });
 
-    await dynamoClient.put(params).promise();
+    await dynamoClient.send(command);
 };

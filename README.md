@@ -123,7 +123,7 @@ docker run --rm -p 8000:8000 -v /tmp:/data amazon/dynamodb-local
 ```
 2. Create the DynamoDB table (sample command below): 
 ```
-aws dynamodb create-table --table-name VanityNumberTable --attribute-definitions AttributeName=phoneNumber,AttributeType=S AttributeName=timestamp,AttributeType=N --key-schema AttributeName=phoneNumber,KeyType=HASH AttributeName=timestamp,KeyType=RANGE --billing-mode PAY_PER_REQUEST --endpoint-url http://127.0.0.1:8000
+aws dynamodb create-table --table-name VanityNumberTable --attribute-definitions AttributeName=phoneNumber,AttributeType=S --key-schema AttributeName=phoneNumber,KeyType=HASH --billing-mode PAY_PER_REQUEST --endpoint-url http://127.0.0.1:8000
 ```
 3. Retrieve the ip address of your docker container running dynamodb local:
 ```

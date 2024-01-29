@@ -1,5 +1,5 @@
 import {ddbDocClient} from "./getDynamoDocClient.mjs"
-import { ScanCommand, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { ScanCommand, GetCommand } from '@aws-sdk/lib-dynamodb';
 
 
 export const getLastFiveVanityNumbers = async (number) => {
@@ -20,17 +20,18 @@ export const getLastFiveVanityNumbers = async (number) => {
 };
 
 export const getVanityNumbers = async (number) => {
-    const params = {
+    const command = new GetCommand({
         TableName: process.env.TABLE,
         Key: {
             phoneNumber: number,
         },
-    };
+    });
 
-    const result = await ddbDocClient.send(new GetCommand(params))
+
+    const result = await ddbDocClient.send(command)
     try {
-        console.log('Found vanity numbers in db: ' + result.Item);
-        return result.Item;
+        console.log('Found vanity numbers in db: ' + result.Item["vanityNumbers"]);
+        return result.Item["vanityNumbers"];
     } catch (err) {
         return null; //returns null if no vanity_numbers attribute exists
     }

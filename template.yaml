@@ -36,7 +36,7 @@ Resources:
       Runtime: nodejs18.x
       Architectures:
         - x86_64
-      MemorySize: 128
+      MemorySize: 256
       Timeout: 100
       Description: A endpoint to get last five vanity number.
       Policies:
@@ -69,7 +69,7 @@ Resources:
       Runtime: nodejs18.x
       Architectures:
         - x86_64
-      MemorySize: 128
+      MemorySize: 512
       Timeout: 100
       Description: A lambda handler to convert vanity number.
       Policies:
@@ -96,13 +96,9 @@ Resources:
       AttributeDefinitions:
         - AttributeName: phoneNumber
           AttributeType: S
-        - AttributeName: timestamp
-          AttributeType: N
       KeySchema:
         - AttributeName: phoneNumber
           KeyType: HASH
-        - AttributeName: timestamp
-          KeyType: RANGE
 
 
   # S3 Bucket to host single page app website
