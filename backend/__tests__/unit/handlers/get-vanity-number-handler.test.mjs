@@ -1,7 +1,7 @@
 // Import getVanityNumberHandler function from get-vanity-number.mjs
 import { getVanityNumberHandler } from '../../../src/handlers/get-vanity-number.mjs';
 // Import dynamodb from aws-sdk 
-import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
+import {DynamoDBDocumentClient, ScanCommand} from '@aws-sdk/lib-dynamodb';
 import { mockClient } from "aws-sdk-client-mock";
  
 // This includes all tests for getVanityNumberHandler()
@@ -14,18 +14,15 @@ describe('Test getVanityNumberHandler', () => {
  
     // This test invokes getVanityNumberHandler() and compare the result
     it('should get item by id', async () => { 
-        const item = { id: 'id1' }; 
+        const items = [{ phoneNumber: '12345abc' }, { phoneNumber: '12345abd' }];
  
         // Return the specified value whenever the spied get function is called 
-        ddbMock.on(GetCommand).resolves({
-            Item: item,
+        ddbMock.on(ScanCommand).resolves({
+            Items: items,
         }); 
  
         const event = { 
-            httpMethod: 'GET', 
-            pathParameters: { 
-                phoneNumber: 'id1'
-            } 
+            httpMethod: 'GET',
         };
  
         // Invoke getVanityNumberHandler()

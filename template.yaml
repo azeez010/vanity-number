@@ -99,7 +99,9 @@ Resources:
       KeySchema:
         - AttributeName: phoneNumber
           KeyType: HASH
-
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
 
   # S3 Bucket to host single page app website
   WebSiteBucket:
@@ -177,6 +179,9 @@ Resources:
         SigningBehavior: "always"
         SigningProtocol: "sigv4"
 Outputs:
+  vanityNumberConversionFunction:
+    Description: "Convert Number Lambda Function ARN"
+    Value: !GetAtt vanityNumberConversionFunction.Arn
   APIGatewayEndpoint:
     Description: "API Gateway endpoint URL for Prod stage"
     Value: !Sub "https://${ApiGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
